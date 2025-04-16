@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>马来西亚各州知识测试</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2docx/0.1.3/html2docx.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .quiz-container {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .question {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            margin: 20px auto;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .hidden {
+            display: none;
+        }
+        .answer-key {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>马来西亚各州知识测试（填充题）</h1>
+    <p>姓名：___________________ 班级：___________________ 日期：___________________</p>
+    
+    <div class="quiz-container" id="quiz">
+        <!-- 题目将在这里动态生成 -->
+    </div>
+    
+    <button id="generateWord">生成Word文档</button>
+    <button id="showAnswers">显示答案</button>
+    
+    <div class="answer-key hidden" id="answerKey">
+        <h2>答案</h2>
+        <!-- 答案将在这里动态生成 -->
+    </div>
+
+    <script>
+        // 州属数据
+        const states = [
+            { name: "玻璃市", ruler: "拉惹", capital: "加央", royalCity: "亚娄", anthem: "Aamin-Aamin" },
+            { name: "槟城", ruler: "州元首", capital: "乔治市", royalCity: "无", anthem: "Untuk Negeri Kita" },
+            { name: "吉打", ruler: "苏丹", capital: "亚罗士打", royalCity: "安南武吉", anthem: "Allah Selamatkan Sultan Mahkota" },
+            { name: "霹雳", ruler: "苏丹", capital: "怡保", royalCity: "瓜拉江沙", anthem: "Allah Lanjutkan Usia Sultan" },
+            { name: "雪兰莪", ruler: "苏丹", capital: "莎阿南", royalCity: "巴生", anthem: "Duli Yang Maha Mulia" },
+            { name: "森美兰", ruler: "最高统治者", capital: "芙蓉", royalCity: "神安池", anthem: "Berkatlah Yang di-Pertuan Besar" },
+            { name: "马六甲", ruler: "州元首", capital: "马六甲市", royalCity: "无", anthem: "Melaka Maju Jaya" },
+            { name: "柔佛", ruler: "苏丹", capital: "新山", royalCity: "麻坡", anthem: "Lagu Bangsa Johor" },
+            { name: "彭亨", ruler: "苏丹", capital: "关丹", royalCity: "北根", anthem: "Allah Selamatkan Sultan Kami" },
+            { name: "登嘉楼", ruler: "苏丹", capital: "瓜拉登嘉楼", royalCity: "无", anthem: "Selamat Sultan" },
+            { name: "吉兰丹", ruler: "苏丹", capital: "哥打峇鲁", royalCity: "无", anthem: "Selamat Sultan" },
+            { name: "砂拉越", ruler: "州元首", capital: "古晋", royalCity: "无", anthem: "Ibu Pertiwiku" },
+            { name: "沙巴", ruler: "州元首", capital: "亚庇", royalCity: "无", anthem: "Sabah Tanah Airku" },
+            { name: "联邦直辖区", ruler: "国家元首", capital: "无", royalCity: "无", anthem: "Maju dan Sejahtera" }
+        ];
+
+        // 题目类型
+        const questionTypes = [
+            { text: "{{state}}的州统治者称号是什么？", answerKey: "ruler" },
+            { text: "{{state}}的首府是哪里？", answerKey: "capital" },
+            { text: "{{state}}的皇城是哪里？（若无皇城则填'无'）", answerKey: "royalCity" },
+            { text: "{{state}}的州歌是什么？", answerKey: "anthem" }
+        ];
+
+        // 随机打乱数组
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // 生成随机题目
+        function generateQuiz() {
+            const quizContainer = document.getElementById('quiz');
+            const answerKeyContainer = document.getElementById('answerKey');
+            
+            // 清空容器
+            quizContainer.innerHTML = '';
+            answerKeyContainer.innerHTML = '<h2>答案</h2>';
+            
+            // 打乱州属和题目类型
+            const shuffledStates = shuffleArray([...states]);
+            const shuffledTypes = shuffleArray([...questionTypes]);
+            
+            // 生成10个随机题目
+            const selectedQuestions = [];
+            for (let i = 0; i < 10; i++) {
+                const state = shuffledStates[i % shuffledStates.length];
+                const type = shuffledTypes[i % shuffledTypes.length];
+                
+                const questionText = type.text.replace('{{state}}', state.name);
+                const answer = state[type.answerKey];
+                
+                selectedQuestions.push({
+                    text: questionText,
+                    answer: answer,
+                    number: i + 1
+                });
+            }
+            
+            // 再次打乱问题顺序
+            shuffleArray(selectedQuestions);
+            
+            // 渲染问题
+            selectedQuestions.forEach((q, index) => {
+                // 添加到测验
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <p><strong>${index + 1}.</strong> ${q.text}</p>
+                    <p>答案：___________________________</p>
+                `;
+                quizContainer.appendChild(questionDiv);
+                
+                // 添加到答案
+                const answerDiv = document.createElement('p');
+                answerDiv.innerHTML = `<strong>${index + 1}.</strong> ${q.answer}`;
+                answerKeyContainer.appendChild(answerDiv);
+            });
+        }
+
+        // 生成Word文档
+        document.getElementById('generateWord').addEventListener('click', function() {
+            const quizContent = document.getElementById('quiz').innerHTML;
+            const answerContent = document.getElementById('answerKey').innerHTML;
+            
+            const fullContent = `
+                <h1>马来西亚各州知识测试（填充题）</h1>
+                <p>姓名：___________________ 班级：___________________ 日期：___________________</p>
+                ${quizContent}
+                ${answerContent}
+            `;
+            
+            // 使用html2docx生成Word文档
+            const file = html2docx(fullContent, { title: '马来西亚各州知识测试' });
+            const blob = new Blob([file], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '马来西亚各州知识测试.docx';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        });
+
+        // 显示/隐藏答案
+        document.getElementById('showAnswers').addEventListener('click', function() {
+            const answerKey = document.getElementById('answerKey');
+            answerKey.classList.toggle('hidden');
+        });
+
+        // 页面加载时生成测验
+        window.onload = generateQuiz;
+    </script>
+</body>
+</html>
